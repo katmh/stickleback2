@@ -1,8 +1,13 @@
 setwd("~/stickleback-methylation/src")
 
+# only needed the first time, before dataset annotation
 RS1 <- read.table(gzfile("../data_methylation/RS1.trimmed_cutadapt_bismark_bt2.bismark.cov.gz"), col.names = c("chr", "start", "end", "pct", "numCs", "numTs"))
+RS1$coverage <- RS1$numCs + RS1$numTs
+RS1.fil <- RS1[RS1$coverage >= 10, ]
+RS1.fil <- RS1.fil[RS1.fil$coverage <= quantile(RS1$coverage, .999), ] # making sure that taking out the lower ones doesn't interfere w/ 99.9th percentile calculation here
 
-RS1_ann <- read.csv(gzfile("../data_methylation/RS1_meth_prom_dup_GO.csv.gz"))
+# after performing dataset annotation, just load the file that already has annotations
+RS1.fil <- read.csv(gzfile("../data_annotation/RS1_features_dup.csv.gz"))
 
 RS1_obj <- methRead("../data_methylation/RS1.trimmed_cutadapt_bismark_bt2.bismark.cov", sample.id="", assembly="", pipeline="bismarkCoverage", header=FALSE)
 
